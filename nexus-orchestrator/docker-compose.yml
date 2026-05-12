@@ -1,1 +1,51 @@
+# NEXUS TASK ORCHESTRATOR - INFRASTRUCTURE SAMPLE
+# 
+# THE CHALLENGE: 
+# Setting up a fullstack environment usually takes hours of manual 
+# configuration (Node versions, DB ports, env variables).
+# 
+# THE SOLUTION:
+# This Docker Compose file orchestrates the entire 3-tier architecture. 
+# It creates an isolated network where the Database is shielded from 
+# the public internet, accessible only by our Backend.
 
+services:
+  # 1. The Database: Isolated and persistent
+  nexus-db:
+    image: mongo:latest
+    container_name: nexus_mongodb
+    networks:
+      - nexus-backend-net
+    volumes:
+      - mongo-data:/data/db
+    # Port 27017 is NOT exposed to the host for security reasons
+
+  # 2. The Backend: Node.js/Express API
+  nexus-api:
+    build: ./backend
+    container_name: nexus_api_service
+    environment:
+      - MONGO_URI=mongodb://nexus-db:27017/nexus
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - nexus-db
+    networks:
+      - nexus-backend-net
+      - nexus-frontend-net
+
+  # 3. The Frontend: Angular Application
+  nexus-web:
+    build: ./frontend
+    container_name: nexus_frontend
+    ports:
+      - "4200:80" # Exposed to the user
+    networks:
+      - nexus-frontend-net
+
+networks:
+  nexus-frontend-net:
+  nexus-backend-net:
+    internal: true # Extra layer: No external traffic allowed here
+
+volumes:
+  mongo-data:
