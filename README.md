@@ -1,4 +1,4 @@
-x# Architecture & Logic Samples
+# Architecture & Logic Samples
 
 This repository contains isolated, production-grade logic samples from various professional applications. Due to non-disclosure agreements (NDAs), the full source code of these proprietary systems cannot be shared. 
 
